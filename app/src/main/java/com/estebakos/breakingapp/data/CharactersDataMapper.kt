@@ -1,76 +1,76 @@
-package com.estebakos.sunbelt.test.data
+package com.estebakos.breakingapp.data
 
-import com.estebakos.sunbelt.test.base.BaseMapper
-import com.estebakos.sunbelt.test.data.local.entity.AnimeListEntity
-import com.estebakos.sunbelt.test.data.remote.model.AnimeDetailResponse
-import com.estebakos.sunbelt.test.data.remote.model.AnimeListResponseItem
-import com.estebakos.sunbelt.test.ui.model.AnimeDetailUI
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
+import com.estebakos.breakingapp.base.BaseMapper
+import com.estebakos.breakingapp.data.local.entity.CharacterEntity
+import com.estebakos.breakingapp.data.remote.model.CharacterItemResponse
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
 
-object AnimeDataMapper {
+object CharactersDataMapper {
 
-    object AnimeListRemoteToUI :
-        BaseMapper<List<AnimeListResponseItem>, List<AnimeListUI>> {
-        override fun map(type: List<AnimeListResponseItem>): List<AnimeListUI> {
+    object CharacterListRemoteToUI :
+        BaseMapper<List<CharacterItemResponse>, List<CharacterItemUI>> {
+        override fun map(type: List<CharacterItemResponse>): List<CharacterItemUI> {
             return type.map {
-                AnimeListUI(
-                    animeId = it.animeId,
-                    title = it.title,
-                    synopsis = it.synopsis,
-                    imageUrl = it.imageUrl
+                CharacterItemUI(
+                    id = it.id,
+                    name = it.name,
+                    occupation = it.occupation,
+                    imageUrl = it.imageUrl,
+                    status = it.status,
+                    nickname = it.nickname,
+                    portrayed = it.portrayed,
+                    favorite = false
                 )
             }
         }
     }
 
-    object AnimeListUIToCache : BaseMapper<List<AnimeListUI>, List<AnimeListEntity>> {
-        override fun map(type: List<AnimeListUI>): List<AnimeListEntity> {
+    object CharacterListUIToCache : BaseMapper<List<CharacterItemUI>, List<CharacterEntity>> {
+        override fun map(type: List<CharacterItemUI>): List<CharacterEntity> {
             return type.map {
-                AnimeListEntity(
-                    animeId = it.animeId,
-                    title = it.title,
-                    synopsis = it.synopsis,
-                    imageUrl = it.imageUrl
+                CharacterEntity(
+                    characterId = it.id,
+                    name = it.name,
+                    occupation = it.occupation,
+                    imageUrl = it.imageUrl,
+                    status = it.status,
+                    nickname = it.nickname,
+                    portrayed = it.portrayed,
+                    favorite = it.favorite
                 )
             }
         }
     }
 
-    object AnimeListCacheToUI : BaseMapper<List<AnimeListEntity>, List<AnimeListUI>> {
-        override fun map(type: List<AnimeListEntity>): List<AnimeListUI> {
+    object CharacterListCacheToUI : BaseMapper<List<CharacterEntity>, List<CharacterItemUI>> {
+        override fun map(type: List<CharacterEntity>): List<CharacterItemUI> {
             return type.map {
-                AnimeListUI(
-                    animeId = it.animeId,
-                    title = it.title,
-                    synopsis = it.synopsis,
-                    imageUrl = it.imageUrl
+                CharacterItemUI(
+                    id = it.characterId,
+                    name = it.name,
+                    occupation = it.occupation,
+                    imageUrl = it.imageUrl,
+                    status = it.status,
+                    nickname = it.nickname,
+                    portrayed = it.portrayed,
+                    favorite = it.favorite
                 )
             }
         }
     }
 
-    object AnimeDetailRemoteToUI : BaseMapper<AnimeDetailResponse, AnimeDetailUI> {
-        override fun map(type: AnimeDetailResponse): AnimeDetailUI {
-            return with(type) {
-                AnimeDetailUI(
-                    animeId = animeId,
-                    title = title,
-                    rated = rated,
-                    imageUrl = imageUrl,
-                    airing = airing,
-                    synopsis = synopsis,
-                    type = this.type,
-                    episodes = if (episodes != null) {
-                        episodes!!
-                    } else {
-                        0
-                    },
-                    score = score,
-                    startDate = startDate,
-                    endDate = endDate,
-                    url = url
-                )
-            }
+    object CharacterCacheToUI : BaseMapper<CharacterEntity, CharacterItemUI> {
+        override fun map(type: CharacterEntity): CharacterItemUI {
+            return CharacterItemUI(
+                id = type.characterId,
+                name = type.name,
+                occupation = type.occupation,
+                imageUrl = type.imageUrl,
+                status = type.status,
+                nickname = type.nickname,
+                portrayed = type.portrayed,
+                favorite = type.favorite
+            )
         }
     }
 }

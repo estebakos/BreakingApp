@@ -1,35 +1,27 @@
-package com.estebakos.sunbelt.test.data.local.entity
+package com.estebakos.breakingapp.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "anime_entity")
-data class AnimeEntity(
+@Entity(tableName = "character_entity")
+data class CharacterEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
-    @ColumnInfo(name = "anime_id")
-    var animeId: Int,
-    @ColumnInfo(name = "url")
-    var url: String?,
+    @ColumnInfo(name = "character_id")
+    var characterId: Int,
+    @ColumnInfo(name = "name")
+    var name: String,
+    @ColumnInfo(name = "occupation")
+    var occupation: List<String>,
     @ColumnInfo(name = "image_url")
-    var imageUrl: String? = null,
-    @ColumnInfo(name = "title")
-    var title: String? = null,
-    @ColumnInfo(name = "airing")
-    var airing: Boolean,
-    @ColumnInfo(name = "synopsis")
-    var synopsis: String? = null,
-    @ColumnInfo(name = "type")
-    var type: String? = null,
-    @ColumnInfo(name = "episodes")
-    var episodes: Int,
-    @ColumnInfo(name = "score")
-    var score: Double,
-    @ColumnInfo(name = "start_date")
-    var startDate: String? = null,
-    @ColumnInfo(name = "end_date")
-    var endDate: String? = null,
-    @ColumnInfo(name = "rated")
-    var rated: String? = null
+    var imageUrl: String,
+    @ColumnInfo(name = "status")
+    var status: String,
+    @ColumnInfo(name = "nickname")
+    var nickname: String,
+    @ColumnInfo(name = "portrayed")
+    var portrayed: String,
+    @ColumnInfo(name = "favorite")
+    var favorite: Boolean = false
 )

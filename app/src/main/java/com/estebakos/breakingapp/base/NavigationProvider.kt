@@ -1,4 +1,4 @@
-package com.estebakos.sunbelt.test.base
+package com.estebakos.breakingapp.base
 
 interface NavigationProvider<in A> {
 

@@ -1,21 +1,15 @@
-package com.estebakos.sunbelt.test.data.remote.api
+package com.estebakos.breakingapp.data.remote.api
 
-import com.estebakos.sunbelt.test.data.remote.model.AnimeDetailResponse
-import com.estebakos.sunbelt.test.data.remote.model.AnimeListResponse
+import com.estebakos.breakingapp.base.Constants
+import com.estebakos.breakingapp.data.remote.model.CharacterItemResponse
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface AnimeApi {
+interface BreakingAppApi {
 
-    @GET("anime/{id}")
-    suspend fun getAnimeDetail(
-        @Path("id") id: Int
-    ): AnimeDetailResponse
-
-    @GET("search/anime")
-    suspend fun getAnimeList(
-        @Query("q") query: String,
-        @Query("page") page: Int = 1
-    ): AnimeListResponse
+    @GET("characters")
+    suspend fun getCharacters(
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null
+    ): List<CharacterItemResponse>
 }

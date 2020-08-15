@@ -1,36 +1,59 @@
-package com.estebakos.sunbelt.test.domain.usecase
+package com.estebakos.breakingapp.domain.usecase
 
-import com.estebakos.sunbelt.test.base.Constants
-import com.estebakos.sunbelt.test.base.Output
-import com.estebakos.sunbelt.test.domain.repository.AnimeRepository
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
+import com.estebakos.breakingapp.base.Constants
+import com.estebakos.breakingapp.base.Output
+import com.estebakos.breakingapp.domain.repository.CharactersRepository
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
 import java.io.IOException
 import javax.inject.Inject
 
-class GetAnimeListUseCase @Inject constructor(private val animeRepository: AnimeRepository) {
+class GetCharacterListUseCase @Inject constructor(private val charactersRepository: CharactersRepository) {
 
-    suspend fun execute(): Output<List<AnimeListUI>> {
-        var animeListOutput: Output<List<AnimeListUI>> = Output.Success((listOf()))
+    suspend fun execute(offset: Int? = 0): Output<List<CharacterItemUI>> {
+        var characterListOutput: Output<List<CharacterItemUI>>
+        var favorites: MutableList<CharacterItemUI> = mutableListOf()
 
-        animeRepository.getAnimeList(Constants.DEFAULT_ANIME_QUERY).let { output ->
-            animeListOutput = if (output is Output.Success) {
-                animeRepository.insertAnimeList(output.data)
-                Output.Success(output.data)
-            } else {
-                Output.Error(IOException())
+        charactersRepository.getFavoriteList().let { output ->
+            if (output is Output.Success) {
+                favorites = output.data.toMutableList()
             }
         }
 
-        if (animeListOutput is Output.Error) {
-            animeRepository.getLocalAnimeList().let { output ->
-                animeListOutput = if (output is Output.Success) {
-                    Output.Success(output.data)
+        charactersRepository.getCharacterList(Constants.LIMIT_CHARACTERS_API, offset)
+            .let { output ->
+                characterListOutput = if (output is Output.Success) {
+                    if (favorites.isEmpty()) {
+                        charactersRepository.insertCharacterList(output.data)
+                        Output.Success(output.data)
+                    } else {
+                        val distinct =
+                            output.data.filterNot { data -> favorites.any { data.id == it.id } }
+                        charactersRepository.insertCharacterList(output.data)
+                        Output.Success(distinct)
+                    }
+                } else {
+                    Output.Error(IOException())
+                }
+            }
+
+        if (characterListOutput is Output.Error && (offset == null || offset == 0)) {
+            charactersRepository.getLocalCharacterList().let { output ->
+                characterListOutput = if (output is Output.Success) {
+                    if (favorites.isEmpty()) {
+                        charactersRepository.insertCharacterList(output.data)
+                        Output.Success(output.data)
+                    } else {
+                        val distinct =
+                            output.data.filterNot { data -> favorites.any { data.id == it.id } }
+                        charactersRepository.insertCharacterList(output.data)
+                        Output.Success(distinct)
+                    }
                 } else {
                     Output.Error(IOException())
                 }
             }
         }
 
-        return animeListOutput
+        return characterListOutput
     }
 }

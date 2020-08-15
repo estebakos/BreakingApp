@@ -6,12 +6,12 @@ import com.estebakos.breakingapp.ui.model.CharacterItemUI
 import java.io.IOException
 import javax.inject.Inject
 
-class GetFavoriteListUseCase @Inject constructor(private val charactersRepository: CharactersRepository) {
+class GetCharacterByIdUseCase @Inject constructor(private val charactersRepository: CharactersRepository) {
 
-    suspend fun execute(): Output<List<CharacterItemUI>> =
-        charactersRepository.getFavoriteList().let { output ->
+    suspend fun execute(id: Int): Output<CharacterItemUI> =
+        charactersRepository.getCharacterById(id).let { output ->
             if (output is Output.Success) {
-                Output.Success(output.data.distinct())
+                Output.Success(output.data)
             } else {
                 Output.Error(IOException())
             }

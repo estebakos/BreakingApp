@@ -7,4 +7,29 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="TextView.Title" parent="Widget.AppCompat.TextView">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorTitle</item>
+        <item name="android:textSize">@dimen/font_large</item>
+    </style>
+
+    <style name="TextView.Paragraph" parent="Widget.AppCompat.TextView">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/colorParagraph</item>
+        <item name="android:textSize">@dimen/font_normal</item>
+    </style>
+
+    <style name="Button.Primary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:textSize">@dimen/font_large</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+    </style>
+
 </resources>

@@ -1,164 +1,113 @@
-package com.estebakos.sunbelt.test.ui.viewmodel
+package com.estebakos.breakingapp.ui.viewmodel
 
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.estebakos.sunbelt.test.base.NavigationProvider
-import com.estebakos.sunbelt.test.base.Output
-import com.estebakos.sunbelt.test.domain.usecase.GetAnimeByIdUseCase
-import com.estebakos.sunbelt.test.domain.usecase.GetAnimeListUseCase
-import com.estebakos.sunbelt.test.domain.usecase.SearchAnimeListUseCase
-import com.estebakos.sunbelt.test.ui.model.AnimeDetailUI
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
-import kotlinx.coroutines.delay
+import com.estebakos.breakingapp.R
+import com.estebakos.breakingapp.base.Constants
+import com.estebakos.breakingapp.base.Output
+import com.estebakos.breakingapp.base.UIState
+import com.estebakos.breakingapp.base.UIState.Loading
+import com.estebakos.breakingapp.base.UIStateProvider
+import com.estebakos.breakingapp.domain.usecase.GetCharacterByIdUseCase
+import com.estebakos.breakingapp.domain.usecase.GetCharacterListUseCase
+import com.estebakos.breakingapp.domain.usecase.GetFavoriteListUseCase
+import com.estebakos.breakingapp.domain.usecase.SetFavoriteUseCase
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
+import com.estebakos.breakingapp.ui.state.CharactersUIState
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class AnimeViewModel @Inject constructor(
-    private val getAnimeListUseCase: GetAnimeListUseCase,
-    private val searchAnimeListUseCase: SearchAnimeListUseCase,
-    private val getAnimeByIdUseCase: GetAnimeByIdUseCase,
-    private val connectivityManager: ConnectivityManager
-) : ViewModel(), NavigationProvider<AnimeViewModel.AnimeView> {
+class CharactersViewModel @Inject constructor(
+    private val getCharacterListUseCase: GetCharacterListUseCase,
+    private val setFavoriteUseCase: SetFavoriteUseCase,
+    private val getFavoriteListUseCase: GetFavoriteListUseCase,
+    private val getCharacterByIdUseCase: GetCharacterByIdUseCase
+) : ViewModel(), UIStateProvider<UIState<CharactersUIState>> {
 
-    private val animeListLiveData: MutableLiveData<List<AnimeListUI>> = MutableLiveData()
-    private val animeDetailLiveData: MutableLiveData<AnimeDetailUI> = MutableLiveData()
-    private val emptyItemsLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private val errorLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private val loadingLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private val currentViewMutableLiveData = MutableLiveData<Triple<AnimeView, AnimeView, Any?>>()
+    private val uiStateMutableLiveData = MutableLiveData<UIState<CharactersUIState>>()
+    val uiStateLiveData: LiveData<UIState<CharactersUIState>>
+        get() = uiStateMutableLiveData
 
-    val currentViewLiveData: LiveData<Triple<AnimeView, AnimeView, Any?>>
-        get() = currentViewMutableLiveData
+    private var characters: MutableList<CharacterItemUI> = mutableListOf()
+    private var favorites: MutableList<CharacterItemUI> = mutableListOf()
+    private var offset = -Constants.LIMIT_CHARACTERS_API
 
-    val animeList: LiveData<List<AnimeListUI>>
-        get() = animeListLiveData
+    fun loadCharacterList() {
+        if (characters.isEmpty()) {
+            updateUIState(Loading())
+        }
 
-    val animeDetail: LiveData<AnimeDetailUI>
-        get() = animeDetailLiveData
-
-    val empty: LiveData<Boolean>
-        get() = emptyItemsLiveData
-
-    val error: LiveData<Boolean>
-        get() = errorLiveData
-
-    val loading: LiveData<Boolean>
-        get() = loadingLiveData
-
-    fun loadAnimeList() {
-        loadingLiveData.postValue(true)
         viewModelScope.launch {
-            val output = getAnimeListUseCase.execute()
+            offset += Constants.LIMIT_CHARACTERS_API
+            val output = getCharacterListUseCase.execute(offset)
             if (output is Output.Success) {
-                onGetAnimeListSuccess(output.data)
-            } else {
-                onError()
-            }
-        }
-    }
+                if (characters.isEmpty() && output.data.isEmpty()) {
+                    characters = output.data.toMutableList()
+                    updateUIState(UIState.Empty(R.string.empty_message))
+                } else {
+                    val distinct =
+                        characters.filterNot { data -> output.data.any { data.id == it.id } }
 
-    fun searchAnime(query: String, page: Int = 1) {
-        loadingLiveData.postValue(true)
-        viewModelScope.launch {
-            val output = searchAnimeListUseCase.execute(query, page)
-            if (output is Output.Success) {
-                onGetAnimeListSuccess(output.data)
-            } else {
-                onError()
-            }
-        }
-    }
-
-    fun getAnimeById(id: Int) {
-        loadingLiveData.postValue(true)
-        viewModelScope.launch {
-            val output = getAnimeByIdUseCase.execute(id)
-            if (output is Output.Success) {
-                onGetAnimeByIdSuccess(output.data)
-            } else {
-                onError()
-            }
-        }
-    }
-
-    private fun onGetAnimeListSuccess(animeList: List<AnimeListUI>) {
-        if (animeList.isEmpty()) {
-            emptyItemsLiveData.postValue(true)
-        } else {
-            animeListLiveData.postValue(animeList)
-        }
-
-        loadingLiveData.postValue(false)
-    }
-
-    private fun onGetAnimeByIdSuccess(data: AnimeDetailUI) {
-        animeDetailLiveData.postValue(data)
-        loadingLiveData.postValue(false)
-    }
-
-    private fun onError(hasInternet: Boolean = true) {
-        viewModelScope.launch {
-            delay(300)
-            loadingLiveData.postValue(false)
-        }.invokeOnCompletion {
-            errorLiveData.postValue(hasInternet)
-        }
-    }
-
-    override fun navigateTo(originView: AnimeView, destinationView: AnimeView, params: Any?) {
-        if (hasInternet()) {
-            currentViewMutableLiveData.value = Triple(originView, destinationView, params)
-        } else {
-            onError(false)
-        }
-    }
-
-    private fun hasInternet(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            connectivityManager.run {
-                getNetworkCapabilities(activeNetwork)?.run {
-                    return when {
-                        hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
-                            true
-                        }
-                        hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
-                            true
-                        }
-                        else -> {
-                            false
-                        }
-                    }
+                    characters.addAll(output.data)
+                    updateUIState(UIState.Data(CharactersUIState.CharactersLoadedState(output.data)))
                 }
-            }
-        } else {
-            connectivityManager.run {
-                activeNetworkInfo?.run {
-                    return when (type) {
-                        ConnectivityManager.TYPE_WIFI -> {
-                            true
-                        }
-                        ConnectivityManager.TYPE_MOBILE -> {
-                            true
-                        }
-                        else -> {
-                            false
-                        }
-                    }
+            } else {
+                if (characters.isEmpty()) {
+                    updateUIState(UIState.Error(R.string.error_message))
                 }
             }
         }
-
-        return false
     }
 
-    sealed class AnimeView {
-        object AnimeListFragment : AnimeView()
-        object AnimeDetailFragment : AnimeView()
+    fun loadFavorites(id: Int? = null) {
+        viewModelScope.launch {
+            val output = getFavoriteListUseCase.execute()
+            if (output is Output.Success) {
+                val listTransformed: MutableList<CharacterItemUI> = mutableListOf()
+
+                characters.forEach { character ->
+                    output.data.forEach { favorite ->
+                        if (character.id == favorite.id) {
+                            listTransformed.add(character)
+                        }
+                    }
+                }
+
+                if (id != null) {
+                    val character = getCharacterByIdUseCase.execute(id)
+                    if (character is Output.Success) {
+                        characters.add(character.data)
+                    }
+                }
+
+                favorites = output.data.toMutableList()
+                characters.removeAll(listTransformed)
+                characters.sortBy { it.id }
+
+                updateUIState(UIState.Data(CharactersUIState.CharactersResetState(characters)))
+                updateUIState(UIState.Data(CharactersUIState.FavoritesLoadedState(output.data)))
+            }
+        }
+    }
+
+    fun hasMoreData(): Boolean =
+        (characters.size + favorites.size) < Constants.CHARACTERS_LENGTH - 1
+
+    override fun updateUIState(newUIState: UIState<CharactersUIState>) {
+        uiStateMutableLiveData.value = newUIState
+    }
+
+    fun favoriteCharacter(character: CharacterItemUI) {
+        viewModelScope.launch {
+            val output = setFavoriteUseCase.execute(character.id, !character.favorite)
+            if (output is Output.Success) {
+                loadFavorites(if (character.favorite) character.id else null)
+            } else {
+                updateUIState(UIState.Error(R.string.error_message))
+            }
+        }
     }
 }

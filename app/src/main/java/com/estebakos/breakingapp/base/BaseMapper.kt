@@ -1,6 +1,4 @@
-package com.estebakos.sunbelt.test.base
-
-import java.util.*
+package com.estebakos.breakingapp.base
 
 interface BaseMapper<in A, out B> {
     fun map(type: A): B

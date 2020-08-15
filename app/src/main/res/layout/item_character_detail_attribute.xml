@@ -5,55 +5,30 @@
     android:id="@+id/container_character"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/margin_normal">
+    android:paddingStart="@dimen/margin_large"
+    android:paddingTop="@dimen/margin_small"
+    android:paddingEnd="@dimen/margin_large"
+    android:paddingBottom="@dimen/margin_small">
 
-    <ImageView
-        android:id="@+id/image_character_item"
-        android:layout_width="@dimen/character_list_image_width"
-        android:layout_height="@dimen/character_list_image_height"
-        android:contentDescription="@string/content_description_character_image_list"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@color/colorPrimary" />
-
-    <ImageView
-        android:id="@+id/image_favorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/content_description_favorite"
-        android:src="@drawable/ic_favorite_border"
-        app:layout_constraintBottom_toBottomOf="@+id/image_character_item"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/image_character_item" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+        android:id="@+id/text_attribute_label"
+        style="@style/TextView.Paragraph"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/margin_normal"
-        android:paddingEnd="@dimen/margin_normal"
-        app:layout_constraintBottom_toBottomOf="@id/image_character_item"
-        app:layout_constraintEnd_toStartOf="@+id/image_favorite"
-        app:layout_constraintStart_toEndOf="@+id/image_character_item"
-        app:layout_constraintTop_toTopOf="@id/image_character_item">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Occupation:" />
 
-        <TextView
-            android:id="@+id/text_character_name"
-            style="@style/TextView.Title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Walter White" />
-
-        <TextView
-            android:id="@+id/text_character_nick_name"
-            style="@style/TextView.Paragraph"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_character_name"
-            tools:text="Heisenberg" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/text_attribute_value"
+        style="@style/TextView.Title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/text_attribute_label"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="High School Chemistry Teacher, Meth King PIn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

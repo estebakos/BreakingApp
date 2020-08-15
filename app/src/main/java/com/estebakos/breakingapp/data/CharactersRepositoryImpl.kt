@@ -1,34 +1,40 @@
-package com.estebakos.sunbelt.test.data
+package com.estebakos.breakingapp.data
 
-import com.estebakos.sunbelt.test.base.Output
-import com.estebakos.sunbelt.test.data.local.datasource.AnimeLocalDataSource
-import com.estebakos.sunbelt.test.data.remote.datasource.AnimeRemoteDataSource
-import com.estebakos.sunbelt.test.domain.repository.AnimeRepository
-import com.estebakos.sunbelt.test.ui.model.AnimeDetailUI
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
+import com.estebakos.breakingapp.base.Output
+import com.estebakos.breakingapp.data.local.datasource.CharactersLocalDataSource
+import com.estebakos.breakingapp.data.remote.datasource.CharactersRemoteDataSource
+import com.estebakos.breakingapp.domain.repository.CharactersRepository
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
 import javax.inject.Inject
 
-class AnimeRepositoryImpl @Inject constructor(
-    private val animeRemoteDataSource: AnimeRemoteDataSource,
-    private val animeLocalDataSource: AnimeLocalDataSource
-) : AnimeRepository {
-    override suspend fun getAnimeList(query: String, page: Int): Output<List<AnimeListUI>> {
-        return animeRemoteDataSource.getAnimeList(query, page)
+class CharactersRepositoryImpl @Inject constructor(
+    private val charactersRemoteDataSource: CharactersRemoteDataSource,
+    private val charactersLocalDataSource: CharactersLocalDataSource
+) : CharactersRepository {
+
+    override suspend fun getCharacterList(
+        limit: Int?,
+        offset: Int?
+    ): Output<List<CharacterItemUI>> {
+        return charactersRemoteDataSource.getCharacterLists(limit, offset)
     }
 
-    override suspend fun getAnime(id: Int): Output<AnimeDetailUI> {
-        return animeRemoteDataSource.getAnimeDetail(id)
+    override suspend fun getLocalCharacterList(): Output<List<CharacterItemUI>> {
+        return charactersLocalDataSource.getCharacterList()
     }
 
-    override suspend fun getLocalAnimeList(): Output<List<AnimeListUI>> {
-        return animeLocalDataSource.getAnimeList()
+    override suspend fun getFavoriteList(): Output<List<CharacterItemUI>> {
+        return charactersLocalDataSource.getFavoriteList()
     }
 
-    override suspend fun searchLocalAnimeList(query: String): Output<List<AnimeListUI>> {
-        return animeLocalDataSource.searchByQuery(query)
+    override suspend fun insertCharacterList(characterList: List<CharacterItemUI>) {
+        charactersLocalDataSource.insertItems(characterList)
     }
 
-    override suspend fun insertAnimeList(animeList: List<AnimeListUI>) {
-        animeLocalDataSource.insertItems(animeList)
+    override suspend fun favorite(id: Int, favorite: Boolean): Output<Boolean> =
+        charactersLocalDataSource.favorite(id, favorite)
+
+    override suspend fun getCharacterById(id: Int): Output<CharacterItemUI> {
+        return charactersLocalDataSource.getCharacterById(id)
     }
 }

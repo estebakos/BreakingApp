@@ -1,12 +1,12 @@
 package com.estebakos.breakingapp.util
 
-abstract class LoadMoreRecyclerViewScrollListener : EndlessRecyclerViewScrollListener,
-    LoadMoreListener {
-    private var hasMoreToLoad = true
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
-    constructor(layoutManager: LinearLayoutManager?) : super(layoutManager) {}
-    constructor(layoutManager: GridLayoutManager?) : super(layoutManager) {}
-    constructor(layoutManager: StaggeredGridLayoutManager?) : super(layoutManager) {}
+abstract class LoadMoreRecyclerViewScrollListener(layoutManager: LinearLayoutManager) : EndlessRecyclerViewScrollListener(
+    layoutManager
+), LoadMoreListener {
+    private var hasMoreToLoad = true
 
     fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
         if (hasMoreToLoad()) {

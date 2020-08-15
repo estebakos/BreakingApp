@@ -1,9 +1,8 @@
-package com.estebakos.sunbelt.test.base
+package com.estebakos.breakingapp.base
 
 object Constants {
 
-    const val DEFAULT_ANIME_QUERY = "%Black Clover%"
-
-    //Login
-    const val BASE_URL = "https://api.jikan.moe/v3/"
+    const val LIMIT_CHARACTERS_API = 10
+    const val CHARACTERS_LENGTH = 63
+    const val BASE_URL = "https://www.breakingbadapi.com/api/"
 }

@@ -1,152 +1,157 @@
-package com.estebakos.sunbelt.test.ui.fragment
+package com.estebakos.breakingapp.ui.fragment
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.MergeAdapter
-import com.estebakos.sunbelt.test.R
-import com.estebakos.sunbelt.test.ui.adapter.AnimeRecyclerViewAdapter
-import com.estebakos.sunbelt.test.ui.adapter.WelcomeRecyclerViewAdapter
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
-import com.estebakos.sunbelt.test.ui.model.WelcomeListUI
-import com.estebakos.sunbelt.test.ui.viewmodel.AnimeViewModel
-import com.estebakos.sunbelt.test.ui.viewmodel.AnimeViewModel.AnimeView
-import com.estebakos.sunbelt.test.ui.viewmodel.AnimeViewModelFactory
-import dagger.android.support.AndroidSupportInjection
-import kotlinx.android.synthetic.main.fragment_anime_list.*
+import com.estebakos.breakingapp.R
+import com.estebakos.breakingapp.base.Constants
+import com.estebakos.breakingapp.base.UIState
+import com.estebakos.breakingapp.ui.adapter.CharactersController
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
+import com.estebakos.breakingapp.ui.state.CharactersUIState
+import com.estebakos.breakingapp.ui.viewmodel.ActivityViewModel
+import com.estebakos.breakingapp.ui.viewmodel.ActivityViewModel.CharacterView.CharacterDetailFragment
+import com.estebakos.breakingapp.ui.viewmodel.ActivityViewModel.CharacterView.CharacterListFragment
+import com.estebakos.breakingapp.ui.viewmodel.CharactersViewModel
+import com.estebakos.breakingapp.ui.viewmodel.CharactersViewModelFactory
+import com.estebakos.breakingapp.util.EndlessRecyclerViewScrollListener
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.fragment_character_list.*
+import kotlinx.android.synthetic.main.layout_empty.*
 import javax.inject.Inject
 
-class AnimeListFragment : Fragment(R.layout.fragment_anime_list),
-    WelcomeRecyclerViewAdapter.WelcomeListener {
+
+@AndroidEntryPoint
+class CharactersListFragment : Fragment(R.layout.fragment_character_list),
+    CharactersController.CharacterListener {
+
+    private val activityViewModel: ActivityViewModel by activityViewModels()
+    private lateinit var charactersViewModel: CharactersViewModel
+    private lateinit var controller: CharactersController
+    private lateinit var loadMoreScrollListener: EndlessRecyclerViewScrollListener
+    private var characters: MutableList<CharacterItemUI> = mutableListOf()
 
     @Inject
-    lateinit var animeViewModelFactory: AnimeViewModelFactory
-    private lateinit var animeViewModel: AnimeViewModel
-    private var welcomeAdapter: WelcomeRecyclerViewAdapter? = null
-    private var animeAdapter: AnimeRecyclerViewAdapter? = null
-    private var mergedAdapter: MergeAdapter? = null
-    private var listUI = mutableListOf<AnimeListUI>()
-    private var welcomeListUI = mutableListOf<WelcomeListUI>()
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        animeViewModel = ViewModelProvider(
-            requireActivity(), animeViewModelFactory
-        ).get(AnimeViewModel::class.java)
-
-        welcomeListUI = mutableListOf(
-            WelcomeListUI(
-                getString(R.string.welcome_title), getString(R.string.welcome_description)
-            )
-        )
-
-        observeLiveData()
-        animeViewModel.loadAnimeList()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (animeAdapter != null && mergedAdapter != null && mergedAdapter!!.adapters.size == 1) {
-            mergedAdapter?.addAdapter(1, animeAdapter!!)
-        }
-    }
-
-    private fun observeLiveData() {
-        animeViewModel.animeList.observe(requireActivity(), Observer(::onAnimeListReceived))
-        animeViewModel.loading.observe(requireActivity(), Observer(::onLoadingStateReceived))
-        animeViewModel.empty.observe(requireActivity(), Observer(::onEmptyReceived))
-        animeViewModel.error.observe(requireActivity(), Observer(::onErrorReceived))
-    }
-
-    private fun onAnimeListReceived(list: List<AnimeListUI>) {
-        listUI.clear()
-        listUI.addAll(list)
-
-        if (animeAdapter == null || mergedAdapter!!.adapters.size == 1) {
-            animeAdapter = AnimeRecyclerViewAdapter(listUI) {
-                animeViewModel.navigateTo(
-                    AnimeView.AnimeListFragment,
-                    AnimeView.AnimeDetailFragment,
-                    it
-                )
-            }
-
-            if (mergedAdapter != null && mergedAdapter!!.adapters.size <= 1) {
-                mergedAdapter?.addAdapter(1, animeAdapter!!)
-            }
-        } else {
-            animeAdapter!!.notifyDataSetChanged()
-        }
-    }
-
-    private fun onLoadingStateReceived(isLoading: Boolean) {
-        if (loadingLayout != null) {
-            loadingLayout.apply {
-                visibility = if (isLoading) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-            }
-        }
-    }
-
-    private fun onErrorReceived(hasInternet: Boolean) {
-        if(hasInternet) {
-            Toast.makeText(requireContext(), getString(R.string.no_results), Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            Toast.makeText(requireContext(), getString(R.string.no_internet), Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
-
-    private fun onEmptyReceived(hasInternet: Boolean) {
-        Toast.makeText(requireContext(), getString(R.string.no_results), Toast.LENGTH_SHORT).show()
-    }
+    lateinit var charactersViewModelFactory: CharactersViewModelFactory
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        rv_main_data.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        controller = CharactersController(this)
 
-        welcomeAdapter = WelcomeRecyclerViewAdapter(welcomeListUI, this)
+        val layoutManager = LinearLayoutManager(requireContext())
 
-        mergedAdapter = MergeAdapter(welcomeAdapter)
-
-        rv_main_data.run {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.VERTICAL
+        loadMoreScrollListener = object : EndlessRecyclerViewScrollListener(layoutManager) {
+            override fun onLoadMore(page: Int) {
+                if (controller.hasMoreToLoad) {
+                    charactersViewModel.loadCharacterList()
+                }
             }
+        }
 
-            adapter = mergedAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    requireContext(),
-                    DividerItemDecoration.VERTICAL
+        recycler_characters.layoutManager = layoutManager
+        recycler_characters.addOnScrollListener(loadMoreScrollListener)
+        recycler_characters.adapter = controller.adapter
+
+        button_retry.setOnClickListener {
+            charactersViewModel.loadFavorites()
+            charactersViewModel.loadCharacterList()
+        }
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        charactersViewModel =
+            ViewModelProvider(this, charactersViewModelFactory).get(CharactersViewModel::class.java)
+
+        charactersViewModel.uiStateLiveData.observe(
+            requireActivity(),
+            Observer(::onUIChange)
+        )
+
+        charactersViewModel.loadFavorites()
+        charactersViewModel.loadCharacterList()
+
+    }
+
+    private fun onUIChange(uiState: UIState<CharactersUIState>) {
+        when (uiState) {
+            is UIState.Loading -> loading_layout.visibility = View.VISIBLE
+            is UIState.Error -> showError(uiState.message)
+            is UIState.Empty -> {
+                empty_layout.visibility = View.VISIBLE
+            }
+            is UIState.Data -> onDataReceived(uiState.data)
+        }
+
+        if (uiState !is UIState.Loading) {
+            loading_layout.visibility = View.GONE
+        }
+
+        if (uiState !is UIState.Empty) {
+            empty_layout.visibility = View.GONE
+        }
+    }
+
+    private fun onDataReceived(uiState: CharactersUIState) {
+        when (uiState) {
+            is CharactersUIState.CharactersLoadedState -> onCharacterListReceived(uiState.characters)
+            is CharactersUIState.FavoritesLoadedState -> onFavoriteListReceived(uiState.favorites)
+            is CharactersUIState.CharactersResetState -> setCharactersData(uiState.characters)
+        }
+    }
+
+    private fun showError(@StringRes message: Int) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG)
+            .setAction(
+                getString(
+                    R.string.snack_bar_close
                 )
-            )
-        }
+            ) {
+                charactersViewModel.loadCharacterList()
+                charactersViewModel.loadFavorites()
+            }
+            .setActionTextColor(requireContext().getColor(R.color.colorAccent))
+            .show()
     }
 
-    override fun onCardRemoved(item: WelcomeListUI) {
-        val position = welcomeListUI.indexOf(item)
-        welcomeListUI.remove(item)
-        if (welcomeListUI.isEmpty()) {
-            mergedAdapter?.removeAdapter(welcomeAdapter!!)
+    private fun onCharacterListReceived(list: List<CharacterItemUI>) {
+        if (characters.isEmpty()) {
+            setCharactersData(list)
         } else {
-            welcomeAdapter?.notifyItemRemoved(position)
+            controller.addData(list.toMutableList())
+            characters.addAll(list)
         }
+
+        controller.hasMoreToLoad = charactersViewModel.hasMoreData()
     }
+
+    private fun setCharactersData(list: List<CharacterItemUI>) {
+        controller.setData(list.toMutableList())
+        characters = list.toMutableList()
+    }
+
+    private fun onFavoriteListReceived(list: List<CharacterItemUI>) {
+        recycler_characters.scrollToPosition(0)
+        controller.setFavorites(list.toMutableList())
+    }
+
+    override fun onCharacterSelected(character: CharacterItemUI) {
+        activityViewModel.navigateTo(
+            CharacterListFragment,
+            CharacterDetailFragment,
+            character
+        )
+    }
+
+    override fun onCharacterFavorite(character: CharacterItemUI) {
+        charactersViewModel.favoriteCharacter(character)
+    }
+
 }

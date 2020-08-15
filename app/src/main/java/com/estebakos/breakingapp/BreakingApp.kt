@@ -1,14 +1,7 @@
-package com.estebakos.sunbelt.test
+package com.estebakos.breakingapp
 
-import com.estebakos.sunbelt.test.di.DaggerApplicationComponent
-import dagger.android.AndroidInjector
-import dagger.android.DaggerApplication
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class Application : DaggerApplication() {
-
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerApplicationComponent.builder().application(this).build()
-    }
-
-
-}
+@HiltAndroidApp
+class BreakingApp : Application()

@@ -1,14 +1,14 @@
-package com.estebakos.sunbelt.test.domain.repository
+package com.estebakos.breakingapp.domain.repository
 
-import com.estebakos.sunbelt.test.base.Output
-import com.estebakos.sunbelt.test.ui.model.AnimeDetailUI
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
+import com.estebakos.breakingapp.base.Output
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
 
-interface AnimeRepository {
+interface CharactersRepository {
 
-    suspend fun getAnimeList(query: String, page: Int = 1): Output<List<AnimeListUI>>
-    suspend fun getAnime(id: Int): Output<AnimeDetailUI>
-    suspend fun getLocalAnimeList(): Output<List<AnimeListUI>>
-    suspend fun searchLocalAnimeList(query: String): Output<List<AnimeListUI>>
-    suspend fun insertAnimeList(animeList: List<AnimeListUI>)
+    suspend fun getCharacterList(limit: Int? = null, offset: Int? = null) : Output<List<CharacterItemUI>>
+    suspend fun getLocalCharacterList(): Output<List<CharacterItemUI>>
+    suspend fun getFavoriteList(): Output<List<CharacterItemUI>>
+    suspend fun insertCharacterList(characterList: List<CharacterItemUI>)
+    suspend fun favorite(id: Int, favorite: Boolean) : Output<Boolean>
+    suspend fun getCharacterById(id: Int) : Output<CharacterItemUI>
 }

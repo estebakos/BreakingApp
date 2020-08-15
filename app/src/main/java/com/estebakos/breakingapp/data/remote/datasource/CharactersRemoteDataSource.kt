@@ -1,38 +1,28 @@
-package com.estebakos.sunbelt.test.data.remote.datasource
+package com.estebakos.breakingapp.data.remote.datasource
 
-import com.estebakos.sunbelt.test.base.Output
-import com.estebakos.sunbelt.test.data.AnimeDataMapper
-import com.estebakos.sunbelt.test.data.remote.api.AnimeApi
-import com.estebakos.sunbelt.test.ui.model.AnimeDetailUI
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
+import com.estebakos.breakingapp.base.Output
+import com.estebakos.breakingapp.data.CharactersDataMapper
+import com.estebakos.breakingapp.data.remote.api.BreakingAppApi
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class AnimeRemoteDataSource @Inject constructor(
-    private val animeApi: AnimeApi
+class CharactersRemoteDataSource @Inject constructor(
+    private val breakingAppApi: BreakingAppApi
 ) {
 
-    suspend fun getAnimeList(query: String, pages: Int = 1): Output<List<AnimeListUI>> =
+    suspend fun getCharacterLists(
+        limit: Int? = null,
+        offset: Int? = null
+    ): Output<List<CharacterItemUI>> =
         try {
-            val recipesResponse = withContext(Dispatchers.IO) {
-                animeApi.getAnimeList(query, pages)
+            val charactersResponse = withContext(Dispatchers.IO) {
+                breakingAppApi.getCharacters(limit, offset)
             }
 
-            val animeList = AnimeDataMapper.AnimeListRemoteToUI.map(recipesResponse.results)
-            Output.Success(animeList)
-        } catch (e: Exception) {
-            Output.Error(e)
-        }
-
-    suspend fun getAnimeDetail(id: Int): Output<AnimeDetailUI> =
-        try {
-            val animeDetailResponse = withContext(Dispatchers.IO) {
-                animeApi.getAnimeDetail(id)
-            }
-
-            val animeDetail = AnimeDataMapper.AnimeDetailRemoteToUI.map(animeDetailResponse)
-            Output.Success(animeDetail)
+            val characters = CharactersDataMapper.CharacterListRemoteToUI.map(charactersResponse)
+            Output.Success(characters)
         } catch (e: Exception) {
             Output.Error(e)
         }

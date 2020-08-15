@@ -2,7 +2,7 @@ package com.estebakos.breakingapp.data.remote.model
 
 import com.squareup.moshi.Json
 
-data class CharactersItemResponse(
+data class CharacterItemResponse(
     @field:Json(name = "char_id")
     val id: Int,
     @field:Json(name = "name")

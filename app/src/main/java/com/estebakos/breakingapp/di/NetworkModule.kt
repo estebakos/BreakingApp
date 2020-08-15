@@ -1,10 +1,12 @@
-package com.estebakos.sunbelt.test.di
+package com.estebakos.breakingapp.di
 
-import com.estebakos.sunbelt.test.BuildConfig
-import com.estebakos.sunbelt.test.base.Constants
-import com.estebakos.sunbelt.test.data.remote.api.AnimeApi
+import com.estebakos.breakingapp.BuildConfig
+import com.estebakos.breakingapp.base.Constants
+import com.estebakos.breakingapp.data.remote.api.BreakingAppApi
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -12,11 +14,11 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
+@InstallIn(ApplicationComponent::class)
 object NetworkModule {
 
     @Provides
-    @JvmStatic
-    internal fun providesLoggingInterceptor(): HttpLoggingInterceptor? =
+    fun providesLoggingInterceptor(): HttpLoggingInterceptor? =
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
@@ -24,7 +26,6 @@ object NetworkModule {
         } else null
 
     @Provides
-    @JvmStatic
     internal fun providesOkHttpClientBuilder(
         loggingInterceptor: HttpLoggingInterceptor?
     ): OkHttpClient.Builder =
@@ -35,14 +36,12 @@ object NetworkModule {
         }
 
     @Provides
-    @JvmStatic
     internal fun providesIntegratorOkHttpClient(
         builder: OkHttpClient.Builder
     ): OkHttpClient = builder.build()
 
     @Provides
     @Singleton
-    @JvmStatic
     internal fun providesRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
@@ -52,7 +51,7 @@ object NetworkModule {
 
     @Provides
     @JvmStatic
-    internal fun providesErpIntegratorApi(retrofit: Retrofit): AnimeApi =
-        retrofit.create(AnimeApi::class.java)
+    internal fun providesBreakingApi(retrofit: Retrofit): BreakingAppApi =
+        retrofit.create(BreakingAppApi::class.java)
 
 }

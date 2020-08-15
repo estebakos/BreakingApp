@@ -5,5 +5,5 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.EpoxyModelClass
 import com.estebakos.breakingapp.R
 
-@EpoxyModelClass(layout = R.layout.loader_list_item)
-abstract class LoadMoreView : EpoxyModel<View>()
+@EpoxyModelClass(layout = R.layout.item_loader_list)
+abstract class LoadMoreModel : EpoxyModel<View>()

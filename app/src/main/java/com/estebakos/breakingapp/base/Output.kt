@@ -1,4 +1,4 @@
-package com.estebakos.sunbelt.test.base
+package com.estebakos.breakingapp.base
 
 sealed class Output<out T : Any> {
     data class Success<out T : Any>(val data: T) : Output<T>()

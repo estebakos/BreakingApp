@@ -1,9 +1,8 @@
 package com.estebakos.breakingapp.ui.state
 
+import androidx.annotation.StringRes
 import com.estebakos.breakingapp.ui.model.CharacterItemUI
 
-sealed class CharactersUIState {
-    data class CharactersLoadedState(val characters: List<CharacterItemUI>) : CharactersUIState()
-    data class FavoritesLoadedState(val favorites: List<CharacterItemUI>) : CharactersUIState()
-    data class CharactersResetState(val characters: List<CharacterItemUI>) : CharactersUIState()
+sealed class CharacterDetailUIState {
+    data class CharactersLoadedState(@StringRes val message: Int) : CharacterDetailUIState()
 }

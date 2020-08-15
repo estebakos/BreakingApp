@@ -2,54 +2,40 @@ package com.estebakos.breakingapp.ui.epoxymodels
 
 import android.content.Context
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
+import androidx.annotation.StringRes
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
-import com.bumptech.glide.Glide
 import com.estebakos.breakingapp.R
-import com.estebakos.breakingapp.ui.adapter.CharactersController
-import com.estebakos.breakingapp.ui.model.CharacterItemUI
 
-@EpoxyModelClass(layout = R.layout.item_character_detail_header)
-abstract class CharacterDetailHeaderModel : EpoxyModelWithHolder<CharacterDetailHeaderModel.Holder>() {
+@EpoxyModelClass(layout = R.layout.item_character_detail_attribute)
+abstract class CharacterDetailAttributeModel :
+    EpoxyModelWithHolder<CharacterDetailAttributeModel.Holder>() {
 
     @EpoxyAttribute
-    lateinit var character: CharacterItemUI
+    @StringRes
+    var label: Int = -1
+
+    @EpoxyAttribute
+    lateinit var value: String
 
     override fun bind(holder: Holder) {
         with(holder) {
-            nickNameTextView.text = character.nickname
-
-            favoriteImageView.setImageDrawable(
-                if (character.favorite) ContextCompat.getDrawable(
-                    context,
-                    R.drawable.ic_favorite_fill
-                ) else ContextCompat.getDrawable(context, R.drawable.ic_favorite_border)
-            )
-
-            favoriteImageView.setOnClickListener {
-                //characterListener.onCharacterFavorite(character)
-            }
-
-            Glide.with(context).load(character.imageUrl).into(imageView)
+            textLabel.text = context.getText(label)
+            textValue.text = value
         }
     }
 
     inner class Holder : EpoxyHolder() {
-        lateinit var nickNameTextView: TextView
-        lateinit var imageView: ImageView
-        lateinit var favoriteImageView: ImageView
+        lateinit var textLabel: TextView
+        lateinit var textValue: TextView
         lateinit var context: Context
 
         override fun bindView(itemView: View) {
-            nickNameTextView = itemView.findViewById(R.id.text_character_detail_nickname)
-            imageView = itemView.findViewById(R.id.image_character_detail)
-            favoriteImageView = itemView.findViewById(R.id.image_character_favorite)
+            textLabel = itemView.findViewById(R.id.text_attribute_label)
+            textValue = itemView.findViewById(R.id.text_attribute_value)
             context = itemView.context
         }
     }

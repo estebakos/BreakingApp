@@ -1,28 +1,28 @@
-package com.estebakos.sunbelt.test.ui.viewmodel
+package com.estebakos.breakingapp.ui.viewmodel
 
-import android.net.ConnectivityManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.estebakos.sunbelt.test.domain.usecase.GetAnimeByIdUseCase
-import com.estebakos.sunbelt.test.domain.usecase.GetAnimeListUseCase
-import com.estebakos.sunbelt.test.domain.usecase.SearchAnimeListUseCase
+import com.estebakos.breakingapp.domain.usecase.GetCharacterByIdUseCase
+import com.estebakos.breakingapp.domain.usecase.GetCharacterListUseCase
+import com.estebakos.breakingapp.domain.usecase.GetFavoriteListUseCase
+import com.estebakos.breakingapp.domain.usecase.SetFavoriteUseCase
 import javax.inject.Inject
 
-class AnimeViewModelFactory @Inject constructor(
-    private val getAnimeListUseCase: GetAnimeListUseCase,
-    private val searchAnimeListUseCase: SearchAnimeListUseCase,
-    private val getAnimeByIdUseCase: GetAnimeByIdUseCase,
-    private val connectivityManager: ConnectivityManager
+class CharactersViewModelFactory @Inject constructor(
+    private val getCharacterListUseCase: GetCharacterListUseCase,
+    private val setFavoriteUseCase: SetFavoriteUseCase,
+    private val getFavoriteListUseCase: GetFavoriteListUseCase,
+    private val getCharacterByIdUseCase: GetCharacterByIdUseCase
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AnimeViewModel::class.java)) {
-            return AnimeViewModel(
-                getAnimeListUseCase,
-                searchAnimeListUseCase,
-                getAnimeByIdUseCase,
-                connectivityManager
+        if (modelClass.isAssignableFrom(CharactersViewModel::class.java)) {
+            return CharactersViewModel(
+                getCharacterListUseCase,
+                setFavoriteUseCase,
+                getFavoriteListUseCase,
+                getCharacterByIdUseCase
             ) as T
         }
 

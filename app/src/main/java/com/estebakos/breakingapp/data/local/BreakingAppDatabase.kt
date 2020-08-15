@@ -1,16 +1,17 @@
-package com.estebakos.sunbelt.test.data.local
+package com.estebakos.breakingapp.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.estebakos.sunbelt.test.data.local.dao.AnimeDao
-import com.estebakos.sunbelt.test.data.local.entity.AnimeEntity
-import com.estebakos.sunbelt.test.data.local.entity.AnimeListEntity
+import androidx.room.TypeConverters
+import com.estebakos.breakingapp.data.local.dao.CharacterDao
+import com.estebakos.breakingapp.data.local.entity.CharacterEntity
+import com.estebakos.breakingapp.util.StringListConverter
 
 @Database(
-    entities = [AnimeListEntity::class,
-        AnimeEntity::class],
+    entities = [CharacterEntity::class],
     version = 1
 )
-abstract class SunbeltDatabase : RoomDatabase() {
-    abstract fun animeDao(): AnimeDao
+@TypeConverters(StringListConverter::class)
+abstract class BreakingAppDatabase : RoomDatabase() {
+    abstract fun charactersDao(): CharacterDao
 }

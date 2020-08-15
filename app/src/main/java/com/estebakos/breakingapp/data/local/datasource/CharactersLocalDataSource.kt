@@ -1,38 +1,62 @@
-package com.estebakos.sunbelt.test.data.local.datasource
+package com.estebakos.breakingapp.data.local.datasource
 
-import com.estebakos.sunbelt.test.base.Output
-import com.estebakos.sunbelt.test.data.AnimeDataMapper
-import com.estebakos.sunbelt.test.data.local.dao.AnimeDao
-import com.estebakos.sunbelt.test.ui.model.AnimeListUI
+import com.estebakos.breakingapp.base.Output
+import com.estebakos.breakingapp.data.CharactersDataMapper
+import com.estebakos.breakingapp.data.local.dao.CharacterDao
+import com.estebakos.breakingapp.ui.model.CharacterItemUI
 import java.io.IOException
 import javax.inject.Inject
 
-class AnimeLocalDataSource @Inject constructor(
-    private val dao: AnimeDao
+class CharactersLocalDataSource @Inject constructor(
+    private val dao: CharacterDao
 ) {
 
-    suspend fun getAnimeList(): Output<List<AnimeListUI>> =
+    suspend fun getCharacterList(): Output<List<CharacterItemUI>> =
         try {
-            val itemDomain = AnimeDataMapper.AnimeListCacheToUI.map(dao.getAll())
+            val itemDomain = CharactersDataMapper.CharacterListCacheToUI.map(dao.getAll())
             Output.Success(itemDomain)
         } catch (e: Throwable) {
             Output.Error(IOException("Exception ${e.message}"))
         }
 
-    suspend fun searchByQuery(query: String): Output<List<AnimeListUI>> =
+    suspend fun getFavoriteList(): Output<List<CharacterItemUI>> =
         try {
-            val itemDomain = AnimeDataMapper.AnimeListCacheToUI.map(dao.findByQuery(query))
+            val itemDomain = CharactersDataMapper.CharacterListCacheToUI.map(dao.getFavorites())
             Output.Success(itemDomain)
         } catch (e: Throwable) {
             Output.Error(IOException("Exception ${e.message}"))
         }
 
-    suspend fun insertItems(item: List<AnimeListUI>) {
+    suspend fun insertItems(items: List<CharacterItemUI>) {
         try {
-            dao.deleteAll()
-            dao.insertAll(AnimeDataMapper.AnimeListUIToCache.map(item))
+            val savedList: MutableList<CharacterItemUI> = mutableListOf()
+            items.forEach { character ->
+                if (dao.getById(character.id) == null) {
+                    savedList.add(character)
+                }
+            }
+
+            dao.insertAll(CharactersDataMapper.CharacterListUIToCache.map(savedList))
         } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
+
+    suspend fun favorite(id: Int, favorite: Boolean): Output<Boolean> =
+        try {
+            dao.favorite(id, favorite)
+            Output.Success(true)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            Output.Error(IOException("Exception ${e.message}"))
+        }
+
+    suspend fun getCharacterById(id: Int): Output<CharacterItemUI> =
+        try {
+            val character = CharactersDataMapper.CharacterCacheToUI.map(dao.getById(id))
+            Output.Success(character)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            Output.Error(IOException("Exception ${e.message}"))
+        }
 }
