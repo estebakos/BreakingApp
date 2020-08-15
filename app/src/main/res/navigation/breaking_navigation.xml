@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/anime_navigation"
+    app:startDestination="@id/navigation_anime_list">
+
+    <fragment
+        android:id="@+id/navigation_anime_list"
+        android:name="com.estebakos.sunbelt.test.ui.fragment.AnimeListFragment"
+        android:label="@string/anime_list"
+        tools:layout="@layout/fragment_anime_list">
+        <action
+            android:id="@+id/action_navigation_anime_list_to_navigation_anime_detail"
+            app:destination="@id/navigation_anime_detail"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popUpTo="@id/navigation_anime_list"
+            app:popEnterAnim="@anim/fragment_open_enter"
+            app:popExitAnim="@anim/fragment_open_exit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_anime_detail"
+        android:name="com.estebakos.sunbelt.test.ui.fragment.AnimeDetailFragment"
+        android:label="{animeTitle}"
+        tools:layout="@layout/fragment_anime_detail">
+
+        <argument
+            android:name="anime"
+            app:argType="com.estebakos.sunbelt.test.ui.model.AnimeListUI"
+            app:nullable="false" />
+
+        <argument
+            android:name="animeTitle"
+            app:argType="string"
+            app:nullable="false" />
+    </fragment>
+
+</navigation>
