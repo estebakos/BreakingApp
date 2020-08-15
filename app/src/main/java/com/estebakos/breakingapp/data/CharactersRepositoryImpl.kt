@@ -19,8 +19,8 @@ class CharactersRepositoryImpl @Inject constructor(
         return charactersRemoteDataSource.getCharacterLists(limit, offset)
     }
 
-    override suspend fun getLocalCharacterList(): Output<List<CharacterItemUI>> {
-        return charactersLocalDataSource.getCharacterList()
+    override suspend fun getLocalCharacterList(limit: Int, offset: Int): Output<List<CharacterItemUI>> {
+        return charactersLocalDataSource.getCharacterList(limit, offset)
     }
 
     override suspend fun getFavoriteList(): Output<List<CharacterItemUI>> {

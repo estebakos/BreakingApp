@@ -36,22 +36,23 @@ class GetCharacterListUseCase @Inject constructor(private val charactersReposito
                 }
             }
 
-        if (characterListOutput is Output.Error && (offset == null || offset == 0)) {
-            charactersRepository.getLocalCharacterList().let { output ->
-                characterListOutput = if (output is Output.Success) {
-                    if (favorites.isEmpty()) {
-                        charactersRepository.insertCharacterList(output.data)
-                        Output.Success(output.data)
+        if (characterListOutput is Output.Error) {
+            charactersRepository.getLocalCharacterList(Constants.LIMIT_CHARACTERS_API, offset ?: 0)
+                .let { output ->
+                    characterListOutput = if (output is Output.Success) {
+                        if (favorites.isEmpty()) {
+                            charactersRepository.insertCharacterList(output.data)
+                            Output.Success(output.data)
+                        } else {
+                            val distinct =
+                                output.data.filterNot { data -> favorites.any { data.id == it.id } }
+                            charactersRepository.insertCharacterList(output.data)
+                            Output.Success(distinct)
+                        }
                     } else {
-                        val distinct =
-                            output.data.filterNot { data -> favorites.any { data.id == it.id } }
-                        charactersRepository.insertCharacterList(output.data)
-                        Output.Success(distinct)
+                        Output.Error(IOException())
                     }
-                } else {
-                    Output.Error(IOException())
                 }
-            }
         }
 
         return characterListOutput

@@ -11,9 +11,9 @@ class CharactersLocalDataSource @Inject constructor(
     private val dao: CharacterDao
 ) {
 
-    suspend fun getCharacterList(): Output<List<CharacterItemUI>> =
+    suspend fun getCharacterList(limit: Int, offset: Int): Output<List<CharacterItemUI>> =
         try {
-            val itemDomain = CharactersDataMapper.CharacterListCacheToUI.map(dao.getAll())
+            val itemDomain = CharactersDataMapper.CharacterListCacheToUI.map(dao.getCharacters(limit, offset))
             Output.Success(itemDomain)
         } catch (e: Throwable) {
             Output.Error(IOException("Exception ${e.message}"))

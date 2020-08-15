@@ -8,8 +8,8 @@ import com.estebakos.breakingapp.data.local.entity.CharacterEntity
 
 @Dao
 interface CharacterDao {
-    @Query("SELECT * FROM character_entity")
-    suspend fun getAll(): List<CharacterEntity>
+    @Query("SELECT * FROM character_entity LIMIT :limit OFFSET :offset")
+    suspend fun getCharacters(limit: Int, offset: Int): List<CharacterEntity>
 
     @Query("SELECT * FROM character_entity WHERE character_id =:id")
     suspend fun getById(id: Int): CharacterEntity
